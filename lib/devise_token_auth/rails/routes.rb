@@ -2,7 +2,7 @@
 
 module ActionDispatch::Routing
   class Mapper
-    def mount_devise_token_auth_for(resource, opts)
+    def mount_devise_token_auth_for(resource, opts, model: nil)
       # ensure objects exist to simplify attr checks
       opts[:controllers] ||= {}
       opts[:skip]        ||= []
@@ -15,6 +15,7 @@ module ActionDispatch::Routing
       token_validations_ctrl = opts[:controllers][:token_validations] || 'devise_token_auth/token_validations'
       omniauth_ctrl          = opts[:controllers][:omniauth_callbacks] || 'devise_token_auth/omniauth_callbacks'
       unlocks_ctrl           = opts[:controllers][:unlocks] || 'devise_token_auth/unlocks'
+      route_name             = opts[:as] || resource
 
       # define devise controller mappings
       controllers = { sessions: sessions_ctrl,
@@ -27,7 +28,7 @@ module ActionDispatch::Routing
       # remove any unwanted devise modules
       opts[:skip].each{ |item| controllers.delete(item) }
 
-      devise_for resource.pluralize.underscore.gsub('/', '_').to_sym,
+      devise_for route_name.pluralize.underscore.gsub('/', '_').to_sym,
                  class_name: resource,
                  module: :devise,
                  path: opts[:at].to_s,
